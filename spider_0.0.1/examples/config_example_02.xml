@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+	该配置文件用于抓取 http://www.360buy.com/ (京东商城) 网站上首页的商品信息
+ -->
+<spider charset="gb2312">
+	<extracter behavior="list-loop">
+		<params>
+			<param name="pageUrl">http://www.360buy.com/index.asp</param>
+			<param name="itemsXPath">//div[@id='recommend_03']/ul/li</param>
+			<param name="nextXPath"></param>
+			<param name="maxLoops"></param> 
+		</params>
+	</extracter>
+	<transformer behavior="default">
+		<params>
+		</params>
+		<fields>
+			<field name="Name" type="xpath">.//div/a/@title</field>
+			<field name="Link" type="xpath">.//div/a/@href</field>
+			<field name="Image" type="xpath">.//div/a/img/@src</field>
+			<field name="Price" type="script">
+				var oprice = x.data('.//center/text()');
+				var price = oprice;
+				var mIdx = oprice.indexOf("￥");
+				if(mIdx!=-1){
+					price = oprice.substring(mIdx+1);
+				}
+				price;
+			</field>
+		</fields>
+	</transformer>
+	<loader behavior="text-file">
+		<params>
+			<param name="file">d:\temp\test_02.txt</param>
+		</params>
+		<template>
+			<pre>name, link, image, price</pre>
+			<body>@{Name}, @{Link}, @{Image}, @{Price}</body>
+			<post>-- the end --</post> 
+		</template>
+	</loader>
+</spider>

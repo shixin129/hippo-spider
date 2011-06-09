@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+	该配置文件用于抓取 http://www.360buy.com/ (京东商城) 网站上全部MP3/MP4类商品信息, 可以抓取全部分页面中的商品(抓取前300个商品)
+ -->
+<spider charset="gbk">
+	<params>
+		<param name="fileName" type="script">"03-" + spider.datetime('yyyy-MM-dd-') + spider.uuid()</param>
+		<param name="date" type="script">spider.datetime('yyyy_MM_dd_HH_mm_sss')</param>
+		<param name="elementName">div</param>
+		<param name="productSort">837</param>
+		<param name="imagePath">.//${elementName}[@class='ware_right_img']/a/img/@src</param>
+	</params>
+	<extracter behavior="list-loop">
+		<params>
+			<param name="pageUrl">http://www.360buy.com/ware.asp?productSort=${productSort} || http://www.360buy.com/ware.asp?productSort=845 || http://www.360buy.com/ware.asp?productSort=672 || http://www.360buy.com/ware.asp?productSort=673 || http://www.360buy.com/ware.asp?productSort=798</param>
+			<param name="itemsXPath">//div[@class='Product_List_S7']/ul/li</param>
+			<param name="nextXPath">//div[@class='Pagination']/a[contains(text(),'下一页 ')]/@href</param>
+			<param name="maxLoops">200</param>
+		</params>
+	</extracter>
+	<transformer behavior="default">
+		<params>
+		</params>
+		<fields>
+			<field name="Name" type="xpath">.//dd[@class='p_Name']/a/text()</field>
+			<field name="Link" type="xpath">.//dd[@class='p_Name']/a/@href</field>
+			<!-- <field name="Image" type="xpath">.//</field>  -->
+			<!-- <field name="Price" type="script">
+				var oprice = x.data(".//p[@class='ware_right_08_￥']/span/text()");
+				var price = oprice;
+				var mIdx = oprice.indexOf("：");
+				if(mIdx!=-1){
+					price = oprice.substring(mIdx+1);
+				}
+				price;
+			</field>
+			<field name="Id" type="script">
+				var pid = "";
+				var link = x.data(".//div[@class='ware_right_spname']/a/@href");
+				var mIndex = link.indexOf("wid=");
+				if(mIndex!=-1){
+					pid = link.substring(mIndex+4);
+				}
+				pid;
+			</field> -->
+		</fields>
+	</transformer>
+	<loader behavior="text-file">
+		<params>
+			<param name="file">d:\temp\${fileName}.txt</param>
+			<param name="mode">append</param>
+		</params>
+		<template>
+			<pre>-- start ${date} --</pre>
+			<body>@{Name}, @{Link}</body>
+			<post>-- end --</post> 
+		</template>
+	</loader>
+</spider>

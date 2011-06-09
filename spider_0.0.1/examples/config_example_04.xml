@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+	该配置文件用于抓取 http://www.360buy.com/ (京东商城) 网站上全部MP3/MP4类商品信息, 可以抓取全部分页面中的商品(抓取前300个商品)
+ -->
+<spider charset="gb2312">
+	<params>
+		<param name="date" type="script">x.date("yyyy-MM-dd")</param>
+		<param name="file_name">d:/data/spider_${date}.txt</param>
+	</params>
+	<extracter behavior="list-loop">
+		<params>
+			<param name="pageUrl">http://www.360buy.com/ware.asp?productSort=837</param>
+			<param name="itemsXPath">//div[@id='ware_right_09']/ul/li</param>
+			<param name="nextXPath">//div[@id='ware_right_10']/a[contains(text(),'下 页')]/@href</param>
+			<param name="maxLoops">300</param>
+		</params>
+	</extracter>
+	<transformer behavior="default">
+		<params>
+		</params>
+		<fields>
+			<field name="Name" type="xpath">.//div[@class='ware_right_spname']/a/@title</field>
+			<field name="Link" type="xpath">.//div[@class='ware_right_spname']/a/@href</field>
+			<field name="Image" type="xpath">.//div[@class='ware_right_img']/a/img/@src</field>
+			<field name="Price" type="script">
+				var oprice = x.data(".//p[@class='ware_right_08_￥']/span/text()");
+				var price = oprice;
+				var mIdx = oprice.indexOf("：");
+				if(mIdx!=-1){
+					price = oprice.substring(mIdx+1);
+				}
+				price;
+			</field>
+		</fields>
+	</transformer>
+	<loader behavior="text-file">
+		<params>
+			<param name="file">d:\tmps\test_@{date('yyyy-MM-dd')}.txt</param>
+			<param name="mode">append | renew</param>
+		</params>
+		<template>
+			<pre>name, link, image, price [[http://www.360buy.com/ (京东商城) 网站上全部MP3/MP4类商品信息, 可以抓取全部分页面中的商品(抓取前300个商品)]]</pre>
+			<body>@{Name}, @{Link}, @{Image}, @{Price}</body>
+			<post>-- the end --</post> 
+		</template>
+	</loader>
+</spider>

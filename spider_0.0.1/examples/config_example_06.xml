@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<spider charset="gb2312">
+	<params>
+		<param name="date" type="script">spider.datetime('yyyy-MM-dd')</param>
+	</params>
+	<extracter behavior="list-loop">
+		<params>
+			<param name="pageUrl">https://creditcard.ecitic.com/cardbank/giftbuy/pb1100_gift_detail_req.jsp?giftNo=17754</param>
+			<param name="itemsXPath">//body</param>
+			<param name="nextXPath"></param>
+			<param name="maxLoops">100</param>
+			<param name="useFilter">true</param>
+		</params>
+	</extracter>
+	<transformer behavior="default">
+		<params>
+		</params>
+		<fields>
+			<field name="Name" type="xpath">.//h3/text()</field>
+			<field name="Code" type="xpath">.//table[@id='table_dh']/tbody/tr[2]/td[1]/text()</field>
+			<field name="Price" type="xpath">.//table[@id='table_dh']/tbody/tr[2]/td[2]/text()</field>
+		</fields>
+	</transformer>
+	<loader behavior="text-file">
+		<params>
+			<param name="file">d:\temp\data_${date}.txt</param>
+			<param name="mode">renew</param>
+		</params>
+		<template>
+			<pre>Name, Code, Price </pre>
+			<body>@{Name}, @{Code}, @{Price}</body>
+			<post>-- end --</post> 
+		</template>
+	</loader>
+</spider>
