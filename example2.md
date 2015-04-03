@@ -1,0 +1,53 @@
+# Example 2 #
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+	该配置文件用于抓取 http://www.linuxtoy.org 网站上的新闻条目, 可以抓取多页
+ -->
+<spider charset="gbk"> <!-- charset用于指定页面编码, 默认为“AUTO”, 即自动判断; 如果数据编码出现问题, 可以手工指定编码,如gb2312/UTF-8等 -->
+	<params>
+		<param name="filePath" type="script">"01-" + spider.datetime('yyyy-MM-dd-') + spider.uuid()</param>
+		<param name="keyword">春</param>
+		<param name="startpage">www.sina.com.cn</param>
+	</params>
+	<extracter behavior="list-loop"> <!-- 页面数据抽取器, 目前的行为模式只有“list-loop” -->
+		<params>
+			<param name="pageUrl">http://${startpage}</param>				<!-- 请求开始的URL -->
+			<param name="itemsXPath">//a[contains(text(),'${keyword}')]</param> 	<!-- 选取项目的XPath表达式 -->
+			<param name="nextXPath">//a[contains(@href,'shtml')]/@href</param> <!-- 如果存在多页, 可以使用该参数指定下一页的地址(XPath表达式) -->
+			<param name="maxLoops">200</param> <!-- 该参数指定获得全部的项目最大数量 -->
+		</params>
+	</extracter>
+	<transformer behavior="default"> <!-- 数据字段转换器, 目前的行为模式只有"default" -->
+		<params>
+		</params>
+		<fields>
+			<field name="prName" type="xpath">.//text()</field> <!-- 通过xpath表达式定义字段,注意:xpath的上下文是项目对象 -->
+			<field name="prLink" type="xpath">.//@href</field>
+		</fields>
+	</transformer>
+	<loader behavior="text-file"> <!-- 数据装载器, 目前只有“text-file”, 即装载到文本文件 -->
+		<params>
+			<param name="file">d:\temp\${startpage}_${keyword}.xml</param> <!-- 文件地址 -->
+			<param name="mode">append</param>
+		</params>
+		<template> <!-- 文件模板, 模板中可以使用 @{xxx} 的形式引用上面定义的字段 -->
+			<!-- pre区域, 在循环开始之前生成 -->
+			<pre><![CDATA[<?xml version="1.0" encoding="UTF-8"?>  
+				<items>
+			]]></pre>
+			<!-- body区域, 针对每个项目生成 -->
+			<body><![CDATA[
+				<item>
+					<name>@{prName}</name>
+					<link>@{prLink}</link>
+				</item>
+			]]></body>
+			<!-- post区域, 在循环结束之后声称 -->
+			<post><![CDATA[</items>]]></post> 
+		</template>
+	</loader>
+</spider>
+
+```
